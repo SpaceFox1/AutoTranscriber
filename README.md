@@ -2,7 +2,7 @@
 
 ### Ideia Geral
 
-Um site que usuário pode subir um vídeo e ele será legendado na língua escolhida.
+Um site que usuário pode subir um vídeo e ele será legendado na língua original ou para inglês.
 
 ### Diretrizes
 
