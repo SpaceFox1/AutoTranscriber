@@ -1,0 +1,80 @@
+.newForm {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.form {
+  padding: 0.75rem;
+  background: linear-gradient(-15deg, #555 0%, #222 100%);
+  color: white;
+  border-radius: 1rem;
+  border: 1px solid #555;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form:before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/noise.jpg');
+  background-size: 20rem;
+  mix-blend-mode: color-burn;
+  z-index: -1;
+  opacity: 0.5;
+}
+
+.inputField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.inputFieldRow {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.button {
+  width: fit-content;
+  margin-left: auto;
+  padding: 0.25rem 1rem;
+  font-size: 1rem;
+  background: #7a7;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+  border: 0;
+  border-radius: 0.25rem;
+  transition: background 0.25s ease;
+}
+
+.button:hover {
+  background: #afa;
+}
+
+.button:active {
+  background: #fff;
+}
+
+.button:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}
+
+.inputElem {
+  padding: 0.5rem 0.5rem;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: white;
+  border: 1px solid white;
+  font-size: 1rem;
+}

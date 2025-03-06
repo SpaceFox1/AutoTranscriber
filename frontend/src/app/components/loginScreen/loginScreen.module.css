@@ -1,0 +1,179 @@
+@property --transition {
+  syntax: '<percentage>';
+  initial-value: 0%;
+  inherits: false;
+}
+
+.loginScreen {
+  --transition: 100%;
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  mask: linear-gradient(-1deg, black var(--transition), transparent calc(var(--transition) + 1%));
+  mask-composite: exclude;
+  min-height: 100%;
+  height: fit-content;
+  animation: exitBackwards 1s ease-out forwards;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  color: black;
+  z-index: 999999999999;
+}
+
+.loginScreen.hidden {
+  animation: exit 1s ease-out forwards;
+  pointer-events: none;
+}
+
+.background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, #48006c 0%, #006c60 100%);
+  overflow: hidden;
+  z-index: -1;
+}
+
+.bgBack {
+  width: 100%;
+  height: fit-content;
+  position: absolute;
+  top: 50%;
+}
+
+.background::before {
+  content: '';
+  background: linear-gradient(45deg, #f4ff55 0%, #55ff55 100%);
+  height: 100vh;
+  width: 100vw;
+  top: 25%;
+  left: 50%;
+  position: absolute;
+  mask: url('/svgMask.svg'), linear-gradient(0deg, black 0%, black 100%);
+  mask-size: contain;
+  mask-repeat: repeat-x;
+  mask-composite: exclude;
+  scale: 2 1;
+}
+
+.bgBackPath {
+  fill: #fff;
+  z-index: -11;
+}
+
+@keyframes exit {
+  from {
+    --transition: 100%;
+  }
+  to {
+    --transition: -5%;
+  }
+}
+
+@keyframes exitBackwards {
+  from {
+    --transition: -5%;
+  }
+  to {
+    --transition: 100%;
+  }
+}
+
+.foreground {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 1rem;
+  align-items: center;
+  transform: translateX(50%);
+  transition: transform 1s ease;
+}
+
+.foreground:last-of-type {
+  transform: translateX(-50%);
+}
+
+.inputBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.input {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid black;
+  background: transparent;
+  font-size: 1rem;
+  color: black;
+  width: 100%;
+}
+
+.link {
+  background: transparent;
+  color: black;
+  border: 0;
+  color: #1161ff;
+  text-decoration: underline;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+}
+
+.link:active {
+  color: #9811ff;
+}
+
+.button {
+  padding: 0.25rem 0.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-left: auto;
+  background: #55c3ff;
+  color: black;
+  border: 0;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background 0.25s ease;
+}
+
+.button:hover {
+  background: #2596d3;
+}
+
+.button:active {
+  background: #005481;
+}
+
+.bottomOptions {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.toTheRight {
+  transform: translateX(100vw) !important;
+}
+
+.toTheLeft {
+  transform: translateX(-100vw) !important;
+}
+
+.errorBox {
+  border: 1px solid #ff0000;
+  border-left: 0.25rem solid #ff0000;
+  padding: 0.35rem;
+  width: 100%;
+  background: #ff5555aa;
+  color: black;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 0.25rem;
+}
