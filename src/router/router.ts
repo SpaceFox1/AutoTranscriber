@@ -9,7 +9,8 @@ import multer from 'multer';
 import ITranscription from '../interfaces/transcription';
 import path from 'path';
 import { WebSocket } from 'ws';
-import { exec } from 'child_process';
+import { spawn } from 'child_process';
+import fs from 'fs';
 
 export default class appRouter {
   private router = Router();
@@ -23,7 +24,10 @@ export default class appRouter {
     this.router.use(this.authMiddleware.bind(this));
     server.on('upgrade', this.webSocketUpgrade.bind(this));
 
-    this.router.post('/transcribe', cacheEngine.single('file'), this.transcribe.bind(this))
+    this.router.post('/transcribe', cacheEngine.single('file'), this.transcribe.bind(this));
+    this.router.get('/transcriptions', this.getTranscriptions.bind(this));
+    this.router.get('/downloadTranscriptions/:filename', this.downloadTranscriptions.bind(this));
+    this.router.delete('/transcriptions/:id', this.deleteTranscription.bind(this));
   }
 
   getRouter() {
@@ -146,13 +150,16 @@ export default class appRouter {
   }
 
   transcribe(req: Express.Request & any, res: Express.Response & any) {
+    setTimeout(() => {
+      this.wsConnMgr.sendCommandToConnection(req.userInfo[2], ECommands.ACK);
+    }, 3000);
     const randomID = randomUUID();
-    console.log(req.userInfo[1]);
-    const transcriptionPath = path.resolve((req.userInfo[1] as IUser).folderPath, 'transcriptions', `${randomID}.srt`);
+    const transcriptionPath = path.resolve((req.userInfo[1] as IUser).folderPath, 'transcriptions', `${path.basename(req.file.path)}.srt`);
     const newTranscription: ITranscription = {
       videoId: randomID,
       srtFileName: transcriptionPath,
       name: req.body.name,
+      ready: false,
     };
 
     res.status(200).json({ error: false, content: {
@@ -161,17 +168,71 @@ export default class appRouter {
       id: newTranscription.videoId,
     } });
 
-    console.log(req.body.translate);
-    console.log(req.file);
+    this.dbManager.addTranscriptionToUser((req.userInfo[1] as IUser).id, newTranscription);
 
-    const transcriptionProcess = exec(`whisper --model medium --task ${req.body.translate ? 'translate' : 'transcribe'} ${req.file.path}`);
-
-    transcriptionProcess.stdout?.on('data', (chunk) => {
-      console.log(chunk);
-      this.wsConnMgr.sendCommandToConnection(req.userInfo[2], ECommands.TranscriptionFragment, chunk.toString());
+    const transcriptionProcess = spawn('whisper', [
+      '--verbose',
+      'True',
+      '--model',
+      'medium',
+      '--task',
+      req.body.translate ? 'translate' : 'transcribe',
+      req.file.path,
+      '--output_format',
+      'srt',
+      '--output_dir',
+      path.resolve((req.userInfo[1] as IUser).folderPath, 'transcriptions'),
+    ], {
+      shell: true,
+      stdio: 'overlapped'
     });
+
     transcriptionProcess.on('close', () => {
       console.log('finished');
+      this.wsConnMgr.sendCommandToConnection(req.userInfo[2], ECommands.TranscriptionDone)
+      this.dbManager.changeTranscriptionStatus((req.userInfo[1] as IUser).id, newTranscription.videoId, true);
+      fs.unlinkSync(req.file.path);
     });
+  }
+
+  getTranscriptions(req: Express.Request & any, res: Express.Response & any) {
+    const transcriptions = (JSON.parse(fs.readFileSync(path.resolve((req.userInfo[1] as IUser).folderPath, 'index.json')).toString()) as IUser).transcriptions;
+
+    const resultData = transcriptions.map((transcription) => {
+      return {
+        ...transcription,
+        srtFileName: '',
+        preview: transcription.ready ? fs.readFileSync(transcription.srtFileName).toString().substring(0, 100) : 'Processando...',
+      }
+    });
+
+    res.status(200).json({ error: false, content: resultData });
+  }
+
+  downloadTranscriptions(req: Express.Request & any, res: Express.Response & any) {
+    const filename = req.params.filename;
+    const transcriptionId = filename.split('.')[0];
+
+    const transcriptions = (JSON.parse(fs.readFileSync(path.resolve((req.userInfo[1] as IUser).folderPath, 'index.json')).toString()) as IUser).transcriptions;
+    const transcription = transcriptions.find((transcription) => transcription.videoId === transcriptionId);
+
+    if (!transcription) return res.status(404).json({ error: true, message: 'No transcription found!' });
+
+    res.status(200).send(fs.readFileSync(transcription.srtFileName));
+  }
+
+  deleteTranscription(req: Express.Request & any, res: Express.Response & any) {
+    const filename = req.params.id;
+    const transcriptionId = filename.split('.')[0];
+
+    const transcriptions = (JSON.parse(fs.readFileSync(path.resolve((req.userInfo[1] as IUser).folderPath, 'index.json')).toString()) as IUser).transcriptions;
+    const transcription = transcriptions.find((transcription) => transcription.videoId === transcriptionId);
+
+    if (!transcription) return res.status(404).json({ error: true, message: 'No transcription found!' });
+
+    this.dbManager.deleteTranscription((req.userInfo[1] as IUser).id, transcription.srtFileName);
+    this.wsConnMgr.sendCommandToConnection(req.userInfo[2], ECommands.ACK);
+
+    return res.status(200).json({ error: false, content: ''});
   }
 }

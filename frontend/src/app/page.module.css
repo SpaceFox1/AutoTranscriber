@@ -55,3 +55,58 @@
   font-weight: bold;
   cursor: pointer;
 }
+
+.transcriptions {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 1rem;
+  justify-content: space-between;
+}
+
+.transcription {
+  background: #aaa;
+  color: black;
+  padding: 0.5rem;
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.preview {
+  background: #000a;
+  padding: 0.5rem;
+  max-width: 50ch;
+  white-space: pre-line;
+  border-radius: 0.5rem;
+  color: white;
+  height: 100%;
+}
+
+.transcriptButtons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.transcriptButton {
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  border: 0;
+  font-size: 1rem;
+  transition: filter 0.5s ease;
+  cursor: pointer;
+}
+
+.transcriptButton:hover {
+  filter: brightness(0.75) contrast(1.5);
+}
+
+.transcriptButton:active {
+  filter: brightness(0.75);
+}

@@ -44,10 +44,10 @@ export default class DataBaseManager {
     const usrFolder = path.resolve(this.databaseFolder, userObj.id);
     fs.mkdirSync(usrFolder);
     fs.mkdirSync(path.resolve(usrFolder, 'transcriptions'));
+    userObj.folderPath = usrFolder;
 
     fs.writeFileSync(path.resolve(usrFolder, 'index.json'), JSON.stringify(userObj));
 
-    userObj.folderPath = usrFolder;
 
     this.appendToUserRegistry({
       id: userObj.id,
@@ -103,5 +103,17 @@ export default class DataBaseManager {
     const fileIndex = userData.transcriptions.findIndex((item) => item.srtFileName === fileName);
     userData.transcriptions.splice(fileIndex, 1);
     this.updateUser(userData);
+  }
+
+  changeTranscriptionStatus(userId: string, transcriptionId: string, status: boolean) {
+    const userData = this.getUser(userId);
+    if (!userData) return;
+    
+    const transcriptI = userData.transcriptions.findIndex((transcription) => transcription.videoId === transcriptionId);
+    if (transcriptI < 0) return;
+
+    userData.transcriptions[transcriptI].ready = status;
+
+    fs.writeFileSync(path.resolve(userData.folderPath, 'index.json'), JSON.stringify(userData));
   }
 }

@@ -4,7 +4,8 @@ import { Duplex, EventEmitter } from "stream";
 import IUser from "../interfaces/user";
 
 export enum ECommands {
-  TranscriptionFragment='transcriptionFragment'
+  TranscriptionDone='TranscriptionDone',
+  ACK='ACK',
 }
 
 interface ICommand {
@@ -46,7 +47,7 @@ export default class ConnectionManager {
 
   sendCommandToConnection(conn: WebSocket, command: ECommands, data?: unknown) {
     const content = {
-      command: command.toString(),
+      event: command.toString(),
     };
     if (data) Object.assign(content, { data });
     conn.send(JSON.stringify(content));
