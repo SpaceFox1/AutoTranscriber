@@ -129,6 +129,7 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-/cache/*
-/build/*
-/database/*
+/cache/
+/build/
+/database/
+/database/userRegistry.json

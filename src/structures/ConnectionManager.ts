@@ -50,6 +50,7 @@ export default class ConnectionManager {
       event: command.toString(),
     };
     if (data) Object.assign(content, { data });
+    if (conn)
     conn.send(JSON.stringify(content));
   }
 
