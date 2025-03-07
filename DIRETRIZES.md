@@ -15,7 +15,10 @@ Que o sistema como um todo faça jus ao curso de análise e desenvolvimento de s
 * Desenvolvimento: Explicação detalhada do conteúdo e apresentação real do
 sistema.
 * Conclusão: Resumo dos principais pontos abordados.
-* Envio do Projeto: Enviar por email o link do repositório e slides (não precisa de parte escrita)
+
+### Envio do Projeto
+
+* Enviar por email o link do repositório e slides (não precisa de parte escrita)
 
 ### Avaliação
 
